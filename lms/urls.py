@@ -15,6 +15,10 @@ router.register(r'lesson-progress', views.LessonProgressViewSet)
 
 # The API URLs are now determined automatically by the router
 urlpatterns = [
-    path('', include(router.urls)),
-
+    path('/api/', include(router.urls)),
+    path('', views.index, name='home'),
+    path('registro/', views.registro, name='registro'),
+    path('login/', views.iniciar_sesion, name='login'),
+    path('logout/', views.cerrar_sesion, name='logout'),
+    path('perfil/', views.perfil, name='perfil'),
 ]

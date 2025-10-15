@@ -4,8 +4,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import RegistroForm
 
 from .models import (
     Profile, Category, Course, Lesson, Enrollment,
@@ -17,8 +21,62 @@ from .serializers import (
 )
 
 
+def registro(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            messages.success(request, 'Usuario registrado correctamente')
+            return redirect('login')
+    else:
+        form = RegistroForm()
+    return render(request, 'usuarios/registro.html', {'form': form})
+
+
+def iniciar_sesion(request):
+    # Detect whether a Google SocialApp is configured for allauth so the
+    # template can safely show/hide the provider login link.
+    google_provider_enabled = False
+    try:
+        from allauth.socialaccount.models import SocialApp
+        google_provider_enabled = SocialApp.objects.filter(
+            provider='google').exists()
+    except Exception:
+        # allauth may not be available or DB may not have SocialApp entries.
+        google_provider_enabled = False
+
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('perfil')
+        else:
+            messages.error(request, 'Credenciales incorrectas')
+            # Redirect to home so the base template (which contains the login modal)
+            # will render the messages and our JS will keep the modal open.
+            return redirect('home')
+    return render(request, 'usuarios/login.html', {'google_provider_enabled': google_provider_enabled})
+
+
+@login_required
+def perfil(request):
+    return render(request, 'usuarios/perfil.html')
+
+
+def cerrar_sesion(request):
+    logout(request)
+    return redirect('home')
+
+
 def index(request):
-    return render(request, 'index.html')
+    # Show up to 20 published courses on the home page
+    courses = Course.objects.filter(
+        status='published').order_by('-created_at')[:20]
+    return render(request, 'index.html', {'courses': courses})
 
 
 class UserViewSet(viewsets.ModelViewSet):

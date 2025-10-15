@@ -37,13 +37,10 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('', lms_views.index, name='home'),
-    path("polls/", include("polls.urls")),
+    path('', include('lms.urls')),
     path('admin/', admin.site.urls),
-    path('api/lms/', include('lms.urls')),
     # DRF browsable API login
     path('api-auth/', include('rest_framework.urls')),
-
     # Swagger documentation
     re_path(r'^swagger(?P<format>\.json|\.yaml)$',
             schema_view.without_ui(cache_timeout=0), name='schema-json'),
@@ -51,4 +48,5 @@ urlpatterns = [
          cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc',
          cache_timeout=0), name='schema-redoc'),
+    path('accounts/', include('allauth.urls')),
 ]
