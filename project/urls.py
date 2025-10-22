@@ -1,25 +1,21 @@
-"""
-URL configuration for project project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import include, path, re_path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from lms import views as lms_views
+from rest_framework.routers import DefaultRouter
+
+# API router (register lms viewsets here so API lives under /api/lms/)
+api_router = DefaultRouter()
+api_router.register(r'users', lms_views.UserViewSet)
+api_router.register(r'profiles', lms_views.ProfileViewSet)
+api_router.register(r'categories', lms_views.CategoryViewSet)
+api_router.register(r'courses', lms_views.CourseViewSet)
+api_router.register(r'lessons', lms_views.LessonViewSet)
+api_router.register(r'enrollments', lms_views.EnrollmentViewSet)
+api_router.register(r'reviews', lms_views.CourseReviewViewSet)
+api_router.register(r'lesson-progress', lms_views.LessonProgressViewSet)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -39,6 +35,8 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('', include('lms.urls')),
     path('admin/', admin.site.urls),
+
+    path('api/lms/', include((api_router.urls, 'lms'), namespace='lms-api')),
     # DRF browsable API login
     path('api-auth/', include('rest_framework.urls')),
     # Swagger documentation
