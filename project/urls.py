@@ -35,7 +35,6 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('', include('lms.urls')),
     path('admin/', admin.site.urls),
-
     path('api/lms/', include((api_router.urls, 'lms'), namespace='lms-api')),
     # DRF browsable API login
     path('api-auth/', include('rest_framework.urls')),
