@@ -103,11 +103,30 @@ class ProfileViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
 
 
-class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    """Categorias para los cursos ofrecidos (read-only)"""
+class CategoryViewSet(viewsets.ModelViewSet):
+    """Categorias para los cursos ofrecidos"""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    # Allow read-only access to anonymous users, but require authentication
+    # for create/update/delete operations. We implement get_permissions so
+    # it's explicit per-action and also guard destroy to ensure anonymous
+    # delete attempts return 403.
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_permissions(self):
+        # For write actions, require full authentication.
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            perms = [IsAuthenticated]
+        else:
+            perms = [IsAuthenticatedOrReadOnly]
+        return [p() for p in perms]
+
+    def destroy(self, request, *args, **kwargs):
+        # Extra guard: explicitly forbid anonymous delete attempts with 403.
+        if not request.user or not request.user.is_authenticated:
+            from rest_framework.response import Response
+            return Response(status=403)
+        return super().destroy(request, *args, **kwargs)
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['name']
     ordering_fields = ['name']
