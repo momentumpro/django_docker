@@ -8,4 +8,5 @@ urlpatterns = [
     path('login/', views.iniciar_sesion, name='login'),
     path('logout/', views.cerrar_sesion, name='logout'),
     path('perfil/', views.perfil, name='perfil'),
+    path('activate/<int:user_id>/', views.activate_account, name='activate'),
 ]

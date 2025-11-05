@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework import viewsets, permissions
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
@@ -27,8 +28,10 @@ def registro(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
+            user.is_active = False
             user.save()
-            messages.success(request, 'Usuario registrado correctamente')
+            messages.success(
+                request, 'Registro exitoso, revisa tu correo para activar.')
             return redirect('login')
     else:
         form = RegistroForm()
@@ -203,3 +206,10 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(student=self.request.user)
+
+
+def activate_account(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    user.is_active = True
+    user.save()
+    return redirect('login')
