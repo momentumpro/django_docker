@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegistroForm
+from django.http import JsonResponse
 
 from .models import (
     Profile, Category, Course, Lesson, Enrollment,
@@ -213,3 +214,11 @@ def activate_account(request, user_id):
     user.is_active = True
     user.save()
     return redirect('login')
+
+
+def list_courses_ajax(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'GET':
+        courses = list(Course.objects.all().values(
+            'id', 'title', 'description'))
+        return JsonResponse({'courses': courses})
+    return JsonResponse({'error': 'bad request'}, status=400)
