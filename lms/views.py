@@ -83,6 +83,26 @@ def index(request):
     return render(request, 'index.html', {'courses': courses})
 
 
+@login_required
+def enroll_course(request, course_id):
+    """Enroll the current user in a course"""
+    course = get_object_or_404(Course, id=course_id, status='published')
+    
+    # Check if user is already enrolled
+    enrollment, created = Enrollment.objects.get_or_create(
+        student=request.user,
+        course=course,
+        defaults={'status': 'active'}
+    )
+    
+    if created:
+        messages.success(request, f'Te has inscrito exitosamente en {course.title}')
+    else:
+        messages.info(request, f'Ya estabas inscrito en {course.title}')
+    
+    return redirect('home')
+
+
 class UserViewSet(viewsets.ModelViewSet):
     """ViewSet for User model"""
     queryset = User.objects.all()
