@@ -51,5 +51,7 @@ urlpatterns = [
 ]
 
 # Serve media files in development
+# In production (Railway), media files are served from the volume via WhiteNoise or nginx
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
