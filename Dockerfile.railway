@@ -33,37 +33,9 @@ RUN pytest --tb=short -v || (echo "Tests failed! Build aborted." && exit 1)
 # Expose port (Railway uses dynamic ports, but we expose a default)
 EXPOSE 8000
 
-# Create startup script
-# This script runs migrations, collects static files, and starts gunicorn
-RUN echo '#!/bin/bash\n\
-    set -e\n\
-    echo "Starting deployment process..."\n\
-    \n\
-    # Create directories if they do not exist\n\
-    if [ -n "$VOLUME_PATH" ]; then\n\
-    echo "Using Railway volume at $VOLUME_PATH"\n\
-    mkdir -p "$VOLUME_PATH/static" "$VOLUME_PATH/media"\n\
-    else\n\
-    echo "Using local directories"\n\
-    mkdir -p /app/staticfiles /app/media\n\
-    fi\n\
-    \n\
-    # Make migrations\n\
-    echo "Creating migrations..."\n\
-    python manage.py makemigrations --noinput || echo "No new migrations to create"\n\
-    \n\
-    # Run migrations\n\
-    echo "Running migrations..."\n\
-    python manage.py migrate --noinput\n\
-    \n\
-    # Collect static files\n\
-    echo "Collecting static files..."\n\
-    python manage.py collectstatic --noinput\n\
-    \n\
-    # Start gunicorn\n\
-    echo "Starting Gunicorn server..."\n\
-    exec gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 3 project.wsgi:application' > /app/start.sh && \
-    chmod +x /app/start.sh
+# Copy startup script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Run startup script
 CMD ["/app/start.sh"]
