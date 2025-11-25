@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'rest_framework',
     'django_filters',
     'drf_yasg',
@@ -180,3 +181,6 @@ SWAGGER_SETTINGS = {
 
 # drf-yasg settings
 SWAGGER_SCHEMA_URL = 'http://localhost:8500'
+
+# Django Sites Framework
+SITE_ID = 1
