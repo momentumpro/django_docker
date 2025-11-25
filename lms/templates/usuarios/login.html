@@ -30,6 +30,7 @@
         </div>
     </form>
 
+    {% if google_provider_enabled %}
     <div class="pt-2">
         <a href="{% provider_login_url 'google' %}"
             class="flex items-center justify-center gap-2 border rounded px-4 py-2 hover:bg-gray-100">
@@ -38,4 +39,5 @@
             <span>Iniciar sesión con Google</span>
         </a>
     </div>
+    {% endif %}
 </div>
