@@ -22,10 +22,9 @@ COPY . /app/
 # Run tests before building - if tests fail, build fails
 # Use pytest for testing (configured in pytest.ini)
 # Set environment for testing (use SQLite in-memory for tests during build)
+# Note: These env vars are only set for the test run, not persisted
 ENV DJANGO_SETTINGS_MODULE=project.settings
-ENV TEST_DATABASE_ENGINE=django.db.backends.sqlite3
-ENV TEST_DATABASE_NAME=:memory:
-RUN pytest --tb=short -v || (echo "Tests failed! Build aborted." && exit 1)
+RUN TEST_DATABASE_ENGINE=django.db.backends.sqlite3 TEST_DATABASE_NAME=:memory: pytest --tb=short -v || (echo "Tests failed! Build aborted." && exit 1)
 
 # Note: collectstatic will run at startup when volume is mounted
 # We don't run it here because the volume might not be available during build

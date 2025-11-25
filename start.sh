@@ -3,6 +3,10 @@ set -e
 
 echo "Iniciando proceso de despliegue..."
 
+# Desactivar variables de entorno de testing para usar PostgreSQL en producción
+unset TEST_DATABASE_ENGINE
+unset TEST_DATABASE_NAME
+
 # Crear directorios si no existen
 if [ -n "$VOLUME_PATH" ]; then
     echo "Usando volumen de Railway en $VOLUME_PATH"
